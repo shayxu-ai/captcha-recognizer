@@ -23,12 +23,13 @@ from PIL import Image
 
 
 def pre_process(im):
-    (w, h) = im.size    # 获得图片长和宽
-    
+    # (w, h) = im.size    # 获得图片长和宽
+    im.show()
     # 转化图片
-    # g = cropIm.convert('L')   # 转化为灰度图
-    g = im.convert('1')   # 转化为二值化图 0为黑色 or 255为白色
-    g = g.point()
+    g = im.convert('L')   # 转化为灰度图
+    
+    # g = im.convert('1')   # 转化为二值化图 0为黑色 or 255为白色
+    g = g.point(lambda x: 0 if x<=230 else 255, '1')
     g.show()
     return
 
