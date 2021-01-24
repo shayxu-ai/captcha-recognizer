@@ -13,6 +13,9 @@
     png: 无损
     jpg(=jpeg): 有损 => 模型训练出来更robust?
 
+    # svg 可以无限放大
+    需要设置合适的长宽，width="1500" height="500"
+
 """
 
 import os
@@ -22,24 +25,24 @@ from reportlab.graphics import renderPM     # 不过应该有对应的参数的�
 from PIL import Image
 
 
-def pre_process(im):
+def pre_process(img_path):
+    im = Image.open(img_path)
     # (w, h) = im.size    # 获得图片长和宽
-    im.show()
     # 转化图片
-    g = im.convert('L')   # 转化为灰度图
+    im = im.convert('L')   # 转化为灰度图
+    im = im.point(lambda x: 0 if x<=235 else 255)    # 235
+    # im = im.convert('1')
+    im.save(img_path)
     
-    # g = im.convert('1')   # 转化为二值化图 0为黑色 or 255为白色
-    g = g.point(lambda x: 0 if x<=230 else 255, '1')
-    g.show()
     return
 
 def convert_svg2jpg(img_path:str) -> None: 
     try:
         output_file_path = dir_output_name + os.path.basename(img_path).split(".")[0].lower() + ".jpg"
-        renderPM.drawToFile(svg2rlg(dir_name + img_path), output_file_path, fmt="jpg")
-        im = Image.open(output_file_path)
-        pre_process(im)
-        os.remove(dir_name + img_path)
+        renderPM.drawToFile(svg2rlg(dir_name + img_path), output_file_path, fmt="jpg", dpi=72)
+        
+        pre_process(output_file_path)
+        # os.remove(dir_name + img_path)
     except Exception as e:
         print(img_path, e)
     
