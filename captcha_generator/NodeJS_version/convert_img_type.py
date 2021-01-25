@@ -25,20 +25,64 @@ from reportlab.graphics import renderPM     # 不过应该有对应的参数的�
 from PIL import Image
 
 
+def check_y_axis(im, l, r):
+    topborder = 0
+    bottomborder = 0
+    state = 0
+    for y in range(im.size[1]):
+        total = sum(0 if im.getpixel((x, y)) == 255 else 1 for x in range(l, r+1))
+        if total >2 and not state:
+            state = 1
+            bottomborder = y
+        
+        if total <= 2 and state:
+            topborder = y
+            state = 0
+            if topborder - bottomborder > 17:
+                return topborder, bottomborder
+            elif topborder - bottomborder > 5:
+                state = 1
+
+
 def pre_process(img_path):
     im = Image.open(img_path)
     # (w, h) = im.size    # 获得图片长和宽
     # 转化图片
     im = im.convert('L')   # 转化为灰度图
     im = im.point(lambda x: 0 if x<=235 else 255)    # 235
-    # im = im.convert('1')
     im.save(img_path)
-    
-    return
+    width, height = im.size
+    im = im.convert('1')
+    left_border = 0    # 数字的左边界
+    right_border = 0   # 数字的右边界
+    state = 0 # 0: 当前位置在数字外， 1: 当前位置在数字内。
+    for x in range(width):
+        total = sum(0 if im.getpixel((x, y)) == 255 else 1 for y in range(height))
 
-def convert_svg2jpg(img_path:str) -> None: 
+        if total >2 and not state:
+            state = 1
+            left_border = x
+        
+        if total <= 2 and state:
+            state = 0
+            right_border = x
+            # x轴有效性
+            if (35 <= right_border - left_border)  or (right_border - left_border <= 5):
+                continue
+
+            topborder, bottomborder = check_y_axis(im, left_border, right_border)
+            # y轴有效性
+            if topborder - bottomborder >= 35 or (not topborder and not bottomborder):
+                continue
+            
+
+            im_tmp = im.crop((left_border, bottomborder, right_border, topborder))
+            im_tmp.show()
+            # im_tmp.save('figure_' + str(x) + '.jpg')
+
+def convert_svg2jpg(img_path:str, dir_name= "img_raw/", dir_output_name="img_output/") -> None: 
     try:
-        output_file_path = dir_output_name + os.path.basename(img_path).split(".")[0].lower() + ".jpg"
+        output_file_path = dir_output_name + os.path.basename(img_path).split(".")[0] + ".jpg"
         renderPM.drawToFile(svg2rlg(dir_name + img_path), output_file_path, fmt="jpg", dpi=72)
         
         pre_process(output_file_path)
@@ -50,8 +94,6 @@ def convert_svg2jpg(img_path:str) -> None:
 
 
 if __name__ == "__main__":
-    dir_name = "img_raw/"
-    dir_output_name = "img_output/"
     for path in os.listdir(dir_name):
         convert_svg2jpg(path)
         
