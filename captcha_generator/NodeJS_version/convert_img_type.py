@@ -49,7 +49,7 @@ def pre_process(img_path):
     # (w, h) = im.size    # 获得图片长和宽
     # 转化图片
     im = im.convert('L')   # 转化为灰度图
-    im = im.point(lambda x: 0 if x<=235 else 255)    # 235
+    im = im.point(lambda x: 0 if x<=236 else 255)    # 235
     im.save(img_path)
     width, height = im.size
     im = im.convert('1')
@@ -94,6 +94,6 @@ def convert_svg2jpg(img_path:str, dir_name= "img_raw/", dir_output_name="img_out
 
 
 if __name__ == "__main__":
-    for path in os.listdir(dir_name):
+    for path in os.listdir("img_raw/"):
         convert_svg2jpg(path)
         
