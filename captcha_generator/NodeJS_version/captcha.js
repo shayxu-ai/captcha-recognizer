@@ -8,6 +8,7 @@ const fs = require('fs')
 let i = 0
 let dir_name = 'img_raw/'
 
+// 可以稍多一些，会有异常场景
 while(i<10) {
 let n = SvgCaptcha.create({
         size: 4,
@@ -17,7 +18,7 @@ let n = SvgCaptcha.create({
     })
 
 // console.log(n['data'])
-fs.writeFile(dir_name + n['text'] + '_' + i + '.svg', n['data'], err => {
+fs.writeFile(dir_name + i + '_' + n['text'] + '.svg', n['data'], err => {
     if (err) {
       console.error(err)
       i -= 1
