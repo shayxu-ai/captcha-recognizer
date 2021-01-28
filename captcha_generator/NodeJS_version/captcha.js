@@ -9,7 +9,7 @@ let i = 0
 let dir_name = 'img_raw/'
 
 // 可以稍多一些，会有异常场景
-while(i<10) {
+while(i<2000) {
 let n = SvgCaptcha.create({
         size: 4,
         ignoreChars: "0o1itILl",  // 8个
