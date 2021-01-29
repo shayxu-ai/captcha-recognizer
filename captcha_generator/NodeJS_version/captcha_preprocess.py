@@ -143,7 +143,10 @@ def digits_division(im, path_tmp) -> None:
                 if (35 <= right_border - left_border)  or (right_border - left_border <= 5):
                     continue
                 # 映射至y轴
-                topborder, bottomborder = map_y_axis(im, left_border, right_border)
+                try:
+                    topborder, bottomborder = map_y_axis(im, left_border, right_border)
+                except Exception:   # 返回值None，就跳过啦
+                    continue
                 # y轴有效性 太高 or 太低 or 无返回值
                 if (topborder - bottomborder >= 50) or (not topborder and not bottomborder) or (topborder - bottomborder <= 5):
                     continue
@@ -182,6 +185,7 @@ def preprocess(svg_name:str, dir_name= "img_raw/", dir_output_name="img_output/"
     im = im.convert('L').point(lambda x: 0 if x<=236 else 255)   # 转化为灰度图后，按阈值进行二值化
     im.convert('RGB').save(jpg_path_tmp)
 
+    # digits_division(im, jpg_path_tmp)
     # 分割图像
     try:
         digits_division(im, jpg_path_tmp)

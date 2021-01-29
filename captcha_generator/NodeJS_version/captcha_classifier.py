@@ -13,8 +13,6 @@
     60 * 95 = 57%
 
     # to_do
-    保存训练完的参数
-    predict
 
 """
 
@@ -23,9 +21,11 @@ import tensorflow as tf
 import tensorboard
 from tensorflow import keras
 
-if __name__ == "__main__":
+import numpy as np
+
+def train_model():
     print('\n'*10)
-    # 读取图片 tf.data.Dataset
+    # 读取图片 tf.data.Dataset 默认双线性插值 bilinear
     train_ds = keras.preprocessing.image_dataset_from_directory(
         "img_output/", image_size=(40, 40), subset="training", validation_split=0.2,
         seed=123
@@ -36,23 +36,6 @@ if __name__ == "__main__":
         seed=123
     )
     # train_ds.class_names
-
-    # train_images = list()
-    # train_labels = list()
-    # for gif_name in os.listdir("img_output/"):    
-    #     im = Image.open("img_output/" + gif_name)
-    #     im = numpy.array(im.getdata()).reshape(40, 40)
-    #     train_images.append(im)
-    #     train_labels.append(gif_name.split('.')[0].split('_')[1].lower())
-
-    # class_names = [str(i) for i in range(10)]
-    # class_names.extend(list('abcdefghijklmnopqrstuvwxyz'))
-    # # 除外0o1itILl
-    # for item in '0o1itILl':
-    #     if item in class_names:
-    #         class_names.remove(item)
-    # # 30个类别
-    # print(len(class_names))
 
     model = keras.models.Sequential()
     model.add(keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(40, 40, 3)))
@@ -71,7 +54,36 @@ if __name__ == "__main__":
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-    history = model.fit(train_ds, validation_data=val_ds, epochs=10)
+    model.fit(train_ds, validation_data=val_ds, epochs=1)
+    tf.saved_model.save(model, 'saved_model/')
+    # pretrained_model = tf.saved_model.load('saved_model/')
 
+
+def predict(img_path='img_output/2/6.gif'):
+    # 类别
+    class_names = list('23456789abcdefghjkmnopqrstuvwxyz')
+
+    # 读取模型
+    model = tf.saved_model.load('saved_model/')
+
+    # 读取图片
+    img = keras.preprocessing.image.load_img(
+        img_path, target_size=(40, 40), color_mode='rgb', interpolation='bilinear'
+    )
+    img_array = keras.preprocessing.image.img_to_array(img)     # 转成数组
+    img_array = tf.expand_dims(img_array, 0)                    # Create a batch
+
+    # 预测
+    predictions = model(img_array)          # (1, 32) 每一类有个预测值
+    score = tf.nn.softmax(predictions[0])   # (32,)   通过softmax转换成概率
+
+    print(
+        "This image most likely belongs to {} with a {:.2f} percent confidence."
+        .format(class_names[np.argmax(score)], 100 * np.max(score))
+    )
+
+if __name__ == "__main__":
+    # train_model()
+    predict()
 
 
