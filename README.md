@@ -1,15 +1,14 @@
 # captcha-recognizer
-识别各种验证码生成工具产生的验证码。
-目前正在尝试NodeJS的svg-captcha
+识别各种验证码生成工具产生的验证码。有想要做识别的验证码可以给我讲哦  
 
-没有很强算力的设备，所以对验证码分割后再分类。
+|验证码类型|支持情况|
+| - | :-: |
+| NodeJS svg-captcha | [√] |
+<br>
 
-## 可能影响的因素
-### 训练集的分辨率
-dpi
-### 训练集大小
-10k个分类  
-21k : 9 k  
-610k个分类  
-62 * 30k = 1860k
-1000k : 860k
+执行顺序  
+cd captcha_generator/NodeJS_version  
+node captcha.js  
+captcha_preprocess.py  
+captcha_classifier.train_model()  
+captcha_classifier.prefict()  
