@@ -50,9 +50,9 @@ def train_model():
 
     # model.summary()
 
-    model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+    model.compile(optimizer='adam', 
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
 
     model.fit(train_ds, validation_data=val_ds, epochs=1)
     tf.saved_model.save(model, 'saved_model/')
