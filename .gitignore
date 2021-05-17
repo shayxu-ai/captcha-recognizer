@@ -139,3 +139,4 @@ dmypy.json
 .pyre/
 tmp.svg
 tmp.jpg
+.DS_Store
